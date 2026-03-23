@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: url-shortener-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: url_shortener
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: url-shortener-app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    command:
+      - -storage=postgres
+      - -postgres-dsn=postgres://postgres:postgres@postgres:5432/url_shortener?sslmode=disable
+      - -http-addr=:8080
+      - -base-url=http://localhost:8080
+
+volumes:
+  postgres_data:
